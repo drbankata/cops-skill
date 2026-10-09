@@ -82,23 +82,48 @@
     $$("[data-close]", d).forEach(function (b) { b.addEventListener("click", function () { closeDlg(d); }); });
   });
 
-  /* ---------- Hero video: load only when motion is welcome and data is not scarce ---------- */
-  var vid = $(".hero video"), vbtn = $("[data-vid]");
+  /* ---------- On-site video band: only loaded when motion is welcome, data is not scarce, and the band is near the viewport ---------- */
+  var vid = $(".vframe video"), vbtn = $("[data-vid]");
   var saveData = navigator.connection && navigator.connection.saveData;
   if (vid) {
     if (reduce || saveData) { vid.remove(); if (vbtn) vbtn.hidden = true; }
     else {
-      vid.src = vid.getAttribute("data-src");
-      vid.addEventListener("playing", function () { var p = $(".hero .poster"); if (p) p.style.opacity = "0"; });
-      var pv = vid.play && vid.play(); if (pv && pv.catch) pv.catch(function () {});
+      var userPaused = false, loaded = false;
+      var play = function () { var pv = vid.play && vid.play(); if (pv && pv.catch) pv.catch(function () {}); };
+      vid.addEventListener("playing", function () { var p = $(".vframe .poster"); if (p) p.style.opacity = "0"; });
+      var vio = "IntersectionObserver" in window ? new IntersectionObserver(function (es) {
+        es.forEach(function (en) {
+          if (en.isIntersecting) { if (!loaded) { vid.src = vid.getAttribute("data-src"); loaded = true; } if (!userPaused) play(); }
+          else if (loaded) vid.pause();
+        });
+      }, { rootMargin: "200px 0px" }) : null;
+      if (vio) vio.observe(vid.parentNode); else { vid.src = vid.getAttribute("data-src"); play(); }
       if (vbtn) vbtn.addEventListener("click", function () {
         var paused = vid.paused;
-        if (paused) vid.play(); else vid.pause();
+        userPaused = !paused;
+        if (paused) play(); else vid.pause();
         vbtn.setAttribute("aria-pressed", paused ? "false" : "true");
         vbtn.querySelector("span").textContent = paused ? "Pause video" : "Play video";
         vbtn.querySelector("svg").innerHTML = paused ? '<path d="M9 6v12M15 6v12"/>' : '<path d="M8 5l11 7-11 7z"/>';
       });
     }
+  }
+
+  /* ---------- Service lanes strip: drifts sideways as you scroll past (static under reduced motion) ---------- */
+  var lanes = $(".lanes"), lanesUl = lanes && $("ul", lanes);
+  if (lanes && lanesUl && !reduce) {
+    lanes.classList.add("run");
+    var laneTick = false;
+    var moveLanes = function () {
+      laneTick = false;
+      var r = lanes.getBoundingClientRect(), vh = innerHeight;
+      if (r.bottom < -50 || r.top > vh + 50) return;
+      var p = Math.min(1, Math.max(0, (vh - r.top) / (vh + r.height)));
+      var span = Math.max(0, lanesUl.scrollWidth - innerWidth);
+      lanesUl.style.transform = "translate3d(" + (-p * span).toFixed(1) + "px,0,0)";
+    };
+    addEventListener("scroll", function () { if (!laneTick) { laneTick = true; requestAnimationFrame(moveLanes); } }, { passive: true });
+    addEventListener("resize", moveLanes); moveLanes();
   }
 
   /* ---------- Gentle reveal ---------- */
