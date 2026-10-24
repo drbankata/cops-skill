@@ -1,5 +1,5 @@
-# COPS Skilled Services
+# Corporate Solutions
 
-Website for COPS Skilled Services Private Limited — security, housekeeping and integrated facility management across Delhi NCR.
+Website for Corporate Solutions — security, housekeeping and integrated facility management across Delhi NCR.
 
-© COPS Skilled Services Private Limited. All rights reserved. No part of this repository — including its code, text, images and design — may be copied, reused or redistributed without written permission.
+© Corporate Solutions. All rights reserved. No part of this repository — including its code, text, images and design — may be copied, reused or redistributed without written permission.

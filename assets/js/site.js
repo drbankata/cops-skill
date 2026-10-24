@@ -1,5 +1,5 @@
 /* =====================================================================
-   COPS SKILLED SERVICES · site script (no libraries, no build step)
+   CORPORATE SOLUTIONS · site script (no libraries, no build step)
    Progressive enhancement: every page reads fine without JavaScript.
    ===================================================================== */
 (function () {
@@ -17,7 +17,7 @@
   var LINKEDIN     = "https://www.linkedin.com/in/harpreet-preeti-kaur-54785b107/";
   var FORM_URL     = "";   /* optional Google Form link: requests go there as well */
   var PAYMENT_URL  = "";   /* optional online payment link (Razorpay / PayU / Stripe payment page) — shows "Make a payment" on Contact */
-  var BANK_DETAILS = "";   /* optional bank-transfer line, e.g. "HDFC Bank · COPS Skilled Services Pvt Ltd · A/c … · IFSC …" */
+  var BANK_DETAILS = "";   /* optional bank-transfer line, e.g. "HDFC Bank · Corporate Solutions · A/c … · IFSC …" */
   var SITE = "https://drbankata.github.io/cops-skill/";
 
   /* ---------- helpers ---------- */
@@ -58,12 +58,13 @@
   }
 
   /* ---------- Header shadow, reading progress, back-to-top ---------- */
-  var header = $(".site-header"), bar = $(".progress"), toTop = $(".to-top");
+  var header = $(".site-header"), bar = $(".progress"), toTop = $(".to-top"), mcta = $(".m-cta");
   function onScroll() {
     var y = window.scrollY, h = doc.scrollHeight - innerHeight;
     if (header) header.classList.toggle("scrolled", y > 8);
     if (bar) bar.style.width = (h > 0 ? (y / h) * 100 : 0) + "%";
     if (toTop) toTop.classList.toggle("show", y > 900);
+    if (mcta) mcta.classList.toggle("show", y > 520);
   }
   addEventListener("scroll", onScroll, { passive: true }); onScroll();
   if (toTop) toTop.addEventListener("click", function () { scrollTo({ top: 0, behavior: reduce ? "auto" : "smooth" }); });
@@ -129,8 +130,12 @@
   /* ---------- Gentle reveal ---------- */
   var rv = $$(".rv");
   if ("IntersectionObserver" in window && !reduce) {
-    var ro = new IntersectionObserver(function (es) { es.forEach(function (en) { if (en.isIntersecting) { en.target.classList.add("in"); ro.unobserve(en.target); } }); }, { rootMargin: "0px 0px -8% 0px" });
+    /* starts just before a block enters, so fast scrolling never shows an empty band; if the observer never
+       reports (hidden tab, odd browser), everything is shown after 1.5 s rather than staying blank */
+    var seen = false;
+    var ro = new IntersectionObserver(function (es) { seen = true; es.forEach(function (en) { if (en.isIntersecting) { en.target.classList.add("in"); ro.unobserve(en.target); } }); }, { rootMargin: "0px 0px 12% 0px" });
     rv.forEach(function (el) { ro.observe(el); });
+    setTimeout(function () { if (!seen) rv.forEach(function (el) { el.classList.add("in"); }); }, 1500);
   } else rv.forEach(function (el) { el.classList.add("in"); });
 
   /* ---------- Industries tabs (home) ---------- */
@@ -168,10 +173,10 @@
   }
 
   /* =================================================================
-     PROPOSAL BASKET — services the visitor has added. localStorage "cops-req".
+     PROPOSAL BASKET — services the visitor has added. localStorage "cs-req".
      ================================================================= */
-  var req = store("cops-req") || { svcs: [] };
-  function saveReq() { store("cops-req", req); paintReq(); }
+  var req = store("cs-req") || { svcs: [] };
+  function saveReq() { store("cs-req", req); paintReq(); }
   function paintReq() {
     var n = req.svcs.length;
     $$("[data-req-count]").forEach(function (c) { c.textContent = n; c.setAttribute("data-n", n); });
@@ -238,8 +243,8 @@
       var d = collect();
       if (!d.svcs.length && !d.roles.length) { say("Choose at least one service first"); $("#v-security").focus(); return; }
       if (!validate(rf)) return;
-      var f = d.f, id = ref("COPS-RQ");
-      var L = ["Hello COPS team, I would like a proposal for our facility.", "", "Request " + id];
+      var f = d.f, id = ref("CS-RQ");
+      var L = ["Hello Corporate Solutions team, I would like a proposal for our facility.", "", "Request " + id];
       if (d.sector) L.push("Facility type: " + d.sector);
       if (f.get("site")) L.push("Location: " + f.get("site"));
       if (f.get("area")) L.push("Approx. area: " + f.get("area") + " sq ft");
@@ -250,7 +255,7 @@
       L.push("", "Name: " + f.get("name") + (f.get("role") ? ", " + f.get("role") : ""), "Organisation: " + f.get("company"), "Phone: " + f.get("phone"));
       if (f.get("email")) L.push("Email: " + f.get("email"));
       if (f.get("note")) L.push("Note: " + f.get("note"));
-      sendFlow({ title: "Send your request to COPS", subject: "Proposal request " + id + " — " + f.get("company"), body: L.join(NL), after: "req" });
+      sendFlow({ title: "Send your request to Corporate Solutions", subject: "Proposal request " + id + " — " + f.get("company"), body: L.join(NL), after: "req" });
     });
   }
 
@@ -278,7 +283,7 @@
     cf.addEventListener("submit", function (e) {
       e.preventDefault(); if (!validate(cf)) return;
       var f = new FormData(cf);
-      var body = ["Hello COPS team,", "", f.get("message"), "", "— " + f.get("name") + (f.get("company") ? ", " + f.get("company") : ""), "Phone: " + f.get("phone"), "About: " + f.get("topic")].join(NL);
+      var body = ["Hello Corporate Solutions team,", "", f.get("message"), "", "— " + f.get("name") + (f.get("company") ? ", " + f.get("company") : ""), "Phone: " + f.get("phone"), "About: " + f.get("topic")].join(NL);
       sendFlow({ title: "Send your message", subject: "Website enquiry: " + f.get("topic") + " — " + f.get("name"), body: body });
     });
   }
@@ -322,7 +327,7 @@
         setTimeout(function () {
           closeDlg(sd);
           if (after === "req") { req = { svcs: [] }; saveReq(); }
-          say("Thank you — COPS will be in touch shortly.");
+          say("Thank you — Corporate Solutions will be in touch shortly.");
         }, 600);
       });
     });
