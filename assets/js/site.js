@@ -18,7 +18,7 @@
   var FORM_URL     = "";   /* optional Google Form link: requests go there as well */
   var PAYMENT_URL  = "";   /* optional online payment link (Razorpay / PayU / Stripe payment page) — shows "Make a payment" on Contact */
   var BANK_DETAILS = "";   /* optional bank-transfer line, e.g. "HDFC Bank · Corporate Solutions · A/c … · IFSC …" */
-  var SITE = "https://drbankata.github.io/cops-skill/";
+  var SITE = "https://harpreetbanga.in/";
 
   /* ---------- helpers ---------- */
   function $(s, c) { return (c || document).querySelector(s); }
